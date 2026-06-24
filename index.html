@@ -45,11 +45,11 @@
     <script>
         const WHATSAPP_NUMBER = "919876543210"; 
 
-        // 🚨 CONFIGURATION: Paste your Google Spreadsheet ID here
-        const SPREADSHEET_ID = "2PACX-1vR1EDjdykTFNzElhTarNmeqm_5ahjq4b_YqbxLgcC8ZBp4D6oZf4Fmg0CUGu33mmH_p1Fb3EAU3FWHY";
-        
-        // This URL pulls the spreadsheet data as a clean CSV format
-        const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv`;
+     // 🚨 CONFIGURATION: Paste your Web Published URL here
+const PUBLISHED_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR1EDjdykTFNzElhTarNmeqm_5ahjq4b_YqbxLgcC8ZBp4D6oZf4Fmg0CUGu33mmH_p1Fb3EAU3FWHY/pubhtml";
+
+// This automatically converts your link into a clean data feed
+const SHEET_URL = PUBLISHED_URL.replace("/pubhtml", "/pub?output=csv");
 
         const grid = document.getElementById('saree-grid');
 
