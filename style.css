@@ -1,207 +1,48 @@
-/* Reset & Base Styles */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+/* Keep all baseline typography and structural rules from your previous layout */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Poppins', sans-serif; background-color: #fdfbf7; color: #333; line-height: 1.6; }
+header { background: #fff; padding: 1.5rem 5%; display: flex; justify-content: space-between; box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 100; }
+.logo { font-family: 'Cinzel', serif; font-size: 1.8rem; font-weight: 700; color: #800020; }
+nav a { text-decoration: none; color: #555; margin-left: 2rem; font-weight: 600; }
+.hero { background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=1600&q=80') center/cover; height: 40vh; display: flex; justify-content: center; align-items: center; color: #fff; text-align: center; }
+.hero h1 { font-family: 'Cinzel', serif; font-size: 2.5rem; }
+.collection { padding: 4rem 5%; text-align: center; }
+.collection h2 { font-family: 'Cinzel', serif; font-size: 2.3rem; color: #800020; margin-bottom: 0.5rem; }
+.section-subtitle { color: #777; margin-bottom: 3rem; font-style: italic; }
+
+/* Grid Layout */
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2.5rem; }
+.card { background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); display: flex; flex-direction: column; }
+
+/* Image Setup with Zoom Trigger Elements */
+.card-img-container { position: relative; width: 100%; height: 380px; overflow: hidden; background: #f0f0f0; cursor: pointer; }
+.saree-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
+.card-img-container:hover .saree-img { transform: scale(1.05); }
+
+.zoom-overlay {
+    position: absolute; bottom: 10px; right: 10px; background: rgba(0,0,0,0.6); color: #fff;
+    padding: 4px 10px; font-size: 0.8rem; border-radius: 20px; pointer-events: none; opacity: 0.8;
 }
 
-body {
-    font-family: 'Poppins', sans-serif;
-    color: #333;
-    line-height: 1.6;
-    background-color: #fdfbf7;
-    scroll-behavior: smooth;
-}
+/* Card Content & Action Interfaces */
+.card-info { padding: 1.5rem; text-align: left; display: flex; flex-direction: column; flex-grow: 1; }
+.card-info h3 { font-size: 1.2rem; margin-bottom: 0.4rem; color: #222; }
+.price { color: #800020; font-weight: 600; font-size: 1.2rem; margin-bottom: 0.5rem; }
+.desc { font-size: 0.9rem; color: #666; margin-bottom: 1.5rem; flex-grow: 1; }
 
-/* Navigation */
-header {
-    background-color: #ffffff;
-    padding: 1.5rem 5%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+.whatsapp-btn {
+    display: block; text-align: center; background-color: #25D366; color: white;
+    text-decoration: none; padding: 0.7rem; border-radius: 5px; font-weight: 600;
+    transition: background 0.3s; margin-top: auto;
 }
+.whatsapp-btn:hover { background-color: #1ebd58; }
 
-.logo {
-    font-family: 'Cinzel', serif;
-    font-size: 1.8rem;
-    font-weight: 700;
-    color: #800020; /* Deep Burgundy Theme */
-    letter-spacing: 1px;
-}
+/* Lightbox Modal Design */
+.modal { display: none; position: fixed; z-index: 1000; padding-top: 60px; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.9); }
+.modal-content { margin: auto; display: block; width: 80%; max-width: 600px; max-height: 80vh; object-fit: contain; animation: zoomIn 0.3s; }
+#caption { margin: auto; display: block; width: 80%; max-width: 700px; text-align: center; color: #ccc; padding: 10px 0; font-family: 'Cinzel', serif; font-size: 1.2rem; }
 
-nav a {
-    text-decoration: none;
-    color: #555;
-    margin-left: 2rem;
-    font-weight: 600;
-    transition: color 0.3s;
-}
+@keyframes zoomIn { from {transform: scale(0.9); opacity: 0;} to {transform: scale(1); opacity: 1;} }
+.close-modal { position: absolute; top: 15px; right: 35px; color: #f1f1f1; font-size: 40px; font-weight: bold; cursor: pointer; }
 
-nav a:hover {
-    color: #800020;
-}
-
-/* Hero Section */
-.hero {
-    background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), 
-                url('https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=1600&q=80') no-repeat center center/cover;
-    height: 70vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    color: #fff;
-    padding: 0 1rem;
-}
-
-.hero-content h1 {
-    font-family: 'Cinzel', serif;
-    font-size: 3rem;
-    margin-bottom: 1rem;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-}
-
-.hero-content p {
-    font-size: 1.2rem;
-    max-width: 600px;
-    margin: 0 auto 2rem;
-}
-
-.btn {
-    display: inline-block;
-    padding: 0.8rem 2rem;
-    background-color: #800020;
-    color: #fff;
-    text-decoration: none;
-    border-radius: 4px;
-    font-weight: 600;
-    transition: background 0.3s;
-}
-
-.btn:hover {
-    background-color: #a31d3d;
-}
-
-/* Collection Grid */
-.collection {
-    padding: 5rem 5%;
-    text-align: center;
-}
-
-.collection h2, .contact h2 {
-    font-family: 'Cinzel', serif;
-    font-size: 2.5rem;
-    color: #800020;
-    margin-bottom: 0.5rem;
-}
-
-.section-subtitle {
-    color: #777;
-    margin-bottom: 3rem;
-    font-style: italic;
-}
-
-.grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 2.5rem;
-}
-
-.card {
-    background: #fff;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-    transition: transform 0.3s;
-}
-
-.card:hover {
-    transform: translateY(-5px);
-}
-
-.card-img {
-    height: 380px;
-    background-size: cover;
-    background-position: center;
-    background-color: #eaeaea;
-}
-
-/* Rich stock placeholders for instant professional visual feedback */
-.placeholder-banarasi { background-image: url('https://images.unsplash.com/photo-1610030469668-93535c17b6b3?auto=format&fit=crop&w=600&q=80'); }
-.placeholder-jamdani { background-image: url('https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=600&q=80'); }
-.placeholder-kanchipuram { background-image: url('https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?auto=format&fit=crop&w=600&q=80'); }
-
-.card-info {
-    padding: 1.5rem;
-    text-align: left;
-}
-
-.card-info h3 {
-    font-size: 1.3rem;
-    color: #222;
-    margin-bottom: 0.5rem;
-}
-
-.price {
-    color: #800020;
-    font-weight: 600;
-    font-size: 1.2rem;
-    margin-bottom: 0.5rem;
-}
-
-.desc {
-    font-size: 0.9rem;
-    color: #666;
-}
-
-/* Contact Section */
-.contact {
-    background-color: #f5efe6;
-    padding: 5rem 5%;
-    text-align: center;
-}
-
-.contact p {
-    margin-bottom: 2rem;
-    color: #555;
-}
-
-.contact-container {
-    max-width: 600px;
-    margin: 0 auto;
-    background: #fff;
-    padding: 2.5rem;
-    border-radius: 8px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.02);
-}
-
-.contact-info h3 {
-    font-family: 'Cinzel', serif;
-    color: #800020;
-    margin-bottom: 1rem;
-}
-
-.contact-info p {
-    margin-bottom: 0.5rem;
-}
-
-/* Footer */
-footer {
-    background-color: #222;
-    color: #fff;
-    text-align: center;
-    padding: 2rem;
-    font-size: 0.9rem;
-}
-
-/* Mobile Responsiveness */
-@media (max-width: 768px) {
-    header { flex-direction: column; gap: 1rem; }
-    nav a { margin: 0 1rem; }
-    .hero-content h1 { font-size: 2.2rem; }
-}
+footer { background-color: #222; color: #fff; text-align: center; padding: 2rem; margin-top: 4rem; }
