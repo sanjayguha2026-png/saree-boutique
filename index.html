@@ -3,91 +3,120 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Elegant Threads | Traditional & Designer Sarees</title>
+    <title>Elegant Threads | Saree Boutique</title>
     <link rel="stylesheet" href="style.css">
-    <!-- Google Fonts for an elegant look -->
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 </head>
 <body>
 
-    <!-- Header / Navigation -->
     <header>
         <div class="logo">Elegant Threads</div>
         <nav>
             <a href="#home">Home</a>
             <a href="#collection">Collection</a>
-            <a href="#about">Our Story</a>
-            <a href="#contact">Contact</a>
         </nav>
     </header>
 
-    <!-- Hero Section -->
     <section id="home" class="hero">
         <div class="hero-content">
             <h1>Timeless Elegance in Every Weave</h1>
-            <p>Explore our curated collection of authentic handlooms, traditional weaves, and contemporary designer sarees.</p>
-            <a href="#collection" class="btn">Explore Collection</a>
+            <p>Explore our live boutique collection, updated directly from our inventory.</p>
+            <a href="#collection" class="btn">View Collection</a>
         </div>
     </section>
 
-    <!-- Featured Collection -->
     <section id="collection" class="collection">
-        <h2>Our Signature Collection</h2>
-        <p class="section-subtitle">Handpicked masterworks from master weavers</p>
+        <h2>Our Live Collection</h2>
+        <p class="section-subtitle">Click on any image to zoom. Click "Order via WhatsApp" to instantly inquire.</p>
         
-        <div class="grid">
-            <!-- Saree Card 1 -->
-            <div class="card">
-                <div class="card-img placeholder-banarasi"></div>
-                <div class="card-info">
-                    <h3>Pure Banarasi Silk</h3>
-                    <p class="price">₹14,500</p>
-                    <p class="desc">Intricate golden zari work on premium mulberry silk, perfect for bridal elegance.</p>
-                </div>
-            </div>
-
-            <!-- Saree Card 2 -->
-            <div class="card">
-                <div class="card-img placeholder-jamdani"></div>
-                <div class="card-info">
-                    <h3>Dhakai Jamdani</h3>
-                    <p class="price">₹6,800</p>
-                    <p class="desc">Feather-light handwoven cotton-silk blend featuring classic geometric motifs.</p>
-                </div>
-            </div>
-
-            <!-- Saree Card 3 -->
-            <div class="card">
-                <div class="card-img placeholder-kanchipuram"></div>
-                <div class="card-info">
-                    <h3>Kanchipuram Silk</h3>
-                    <p class="price">₹18,200</p>
-                    <p class="desc">Rich contrasting borders with traditional temple designs and pure silver zari.</p>
-                </div>
-            </div>
-        </div>
+        <div class="grid" id="saree-grid">Loading latest sarees...</div>
     </section>
 
-    <!-- Contact & Enquiry Section -->
-    <section id="contact" class="contact">
-        <h2>Visit Us or Enquire</h2>
-        <p>Have questions about customizations or looking for something specific? Get in touch.</p>
-        
-        <div class="contact-container">
-            <div class="contact-info">
-                <h3>Boutique Address</h3>
-                <p>Elegant Threads Boutique</p>
-                <p>Kolkata, West Bengal, India</p>
-                <p><strong>Email:</strong> info@elegantthreads.com</p>
-                <p><strong>WhatsApp:</strong> +91 98765 43210</p>
-            </div>
-        </div>
-    </section>
+    <div id="imageModal" class="modal" onclick="closeModal()">
+        <span class="close-modal">&times;</span>
+        <img class="modal-content" id="modalImg">
+        <div id="caption"></div>
+    </div>
 
-    <!-- Footer -->
     <footer>
         <p>&copy; 2026 Elegant Threads Boutique. All Rights Reserved.</p>
     </footer>
 
+    <script>
+        const WHATSAPP_NUMBER = "919876543210"; 
+
+        // 🚨 CONFIGURATION: Paste your Google Spreadsheet ID here
+        const SPREADSHEET_ID = "2PACX-1vR1EDjdykTFNzElhTarNmeqm_5ahjq4b_YqbxLgcC8ZBp4D6oZf4Fmg0CUGu33mmH_p1Fb3EAU3FWHY";
+        
+        // This URL pulls the spreadsheet data as a clean CSV format
+        const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv`;
+
+        const grid = document.getElementById('saree-grid');
+
+        // Fetch data from Google Sheets
+        fetch(SHEET_URL)
+            .then(response => response.text())
+            .then(csvText => {
+                grid.innerHTML = ""; // Clear the loading text
+                
+                // Simple CSV Parser to handle row splitting safely
+                const rows = csvText.split('\n').map(row => {
+                    // Split by comma but ignore commas inside quotes
+                    return row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(cell => cell.replace(/^"|"$/g, '').trim());
+                });
+
+                // Skip Row 0 (because it contains headers: Name, Price, Image)
+                for (let i = 1; i < rows.length; i++) {
+                    const row = rows[i];
+                    if (!row[0]) continue; // Skip empty lines
+
+                    const sareeName = row[0];
+                    const sareePrice = row[1].startsWith('₹') ? row[1] : `₹${row[1]}`;
+                    const sareeImage = row[2];
+
+                    // Build WhatsApp link
+                    const messageText = `Hello! I am interested in purchasing this saree:\n\n*Saree:* ${sareeName}\n*Price:* ${sareePrice}\n\nIs this item currently available?`;
+                    const encodedMessage = encodeURIComponent(messageText);
+                    const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`;
+
+                    // Generate HTML Card
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    card.innerHTML = `
+                        <div class="card-img-container">
+                            <img src="${sareeImage}" alt="${sareeName}" class="saree-img" onclick="zoomImage(this)">
+                            <div class="zoom-overlay" onclick="this.previousElementSibling.click()">🔍 Click to Zoom</div>
+                        </div>
+                        <div class="card-info">
+                            <h3>${sareeName}</h3>
+                            <p class="price">${sareePrice}</p>
+                            <a href="${whatsappUrl}" target="_blank" class="whatsapp-btn">
+                                💬 Order via WhatsApp
+                            </a>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                }
+            })
+            .catch(error => {
+                console.error('Error loading Google Sheet:', error);
+                grid.innerHTML = "<p>Error loading catalog. Please check your Google Sheet settings.</p>";
+            });
+
+        // Lightbox functions
+        function zoomImage(imgElement) {
+            const modal = document.getElementById("imageModal");
+            const modalImg = document.getElementById("modalImg");
+            const captionText = document.getElementById("caption");
+            
+            modal.style.display = "block";
+            modalImg.src = imgElement.src;
+            captionText.innerHTML = imgElement.alt;
+        }
+
+        function closeModal() {
+            document.getElementById("imageModal").style.display = "none";
+        }
+    </script>
 </body>
 </html>
