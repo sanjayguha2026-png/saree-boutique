@@ -279,3 +279,81 @@ footer {
         font-size: 2rem;
     }
 }
+/* ==========================================================================
+   8. Search & Filter Bar Custom Layouts
+   ========================================================================== */
+.search-filter-wrapper {
+    max-width: 700px;
+    margin: 0 auto 3rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    align-items: center;
+}
+
+.search-box {
+    width: 100%;
+}
+
+.search-box input {
+    width: 100%;
+    padding: 0.8rem 1.5rem;
+    font-size: 1rem;
+    border: 2px solid #eae0d5;
+    border-radius: 30px;
+    font-family: 'Poppins', sans-serif;
+    outline: none;
+    transition: border-color 0.3s;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+}
+
+.search-box input:focus {
+    border-color: #800020;
+}
+
+.filter-buttons {
+    display: flex;
+    gap: 0.8rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.filter-btn {
+    background-color: #fff;
+    border: 1px solid #800020;
+    color: #800020;
+    padding: 0.5rem 1.5rem;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: 600;
+    font-family: 'Poppins', sans-serif;
+    transition: all 0.3s ease;
+}
+
+.filter-btn:hover, .filter-btn.active {
+    background-color: #800020;
+    color: #fff;
+}
+
+/* Category Badge overlaid over card images */
+.category-badge {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background-color: rgba(128, 0, 32, 0.85);
+    color: #fff;
+    padding: 3px 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.no-results {
+    grid-column: 1 / -1;
+    color: #777;
+    font-style: italic;
+    padding: 2rem;
+    font-size: 1.1rem;
+}
