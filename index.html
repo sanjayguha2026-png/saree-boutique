@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vastra - Sutraa | Saree Boutique</title>
+    <title>Elegant Threads | Saree Boutique</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 </head>
 <body>
 
     <header>
-        <div class="logo">Vastra Sutraa</div>
+        <div class="logo">Elegant Threads</div>
         <nav>
             <a href="#home">Home</a>
             <a href="#collection">Collection</a>
@@ -27,7 +27,16 @@
 
     <section id="collection" class="collection">
         <h2>Our Live Collection</h2>
-        <p class="section-subtitle">Click on any image to zoom. Click "Order via WhatsApp" to instantly inquire.</p>
+        
+        <div class="search-filter-wrapper">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Search sarees by name or category..." onkeyup="filterProducts()">
+            </div>
+            
+            <div class="filter-buttons" id="filterButtonsContainer">
+                <button class="filter-btn active" onclick="selectCategory('all', this)">All</button>
+            </div>
+        </div>
         
         <div class="grid" id="saree-grid">Loading latest sarees...</div>
     </section>
@@ -39,70 +48,122 @@
     </div>
 
     <footer>
-        <p>&copy; 2026 Vastra Sutraa Boutique. All Rights Reserved.</p>
+        <p>&copy; 2026 Elegant Threads Boutique. All Rights Reserved.</p>
     </footer>
 
     <script>
-        const WHATSAPP_NUMBER = "919836409757"; 
+        const WHATSAPP_NUMBER = "919876543210"; 
+        const PUBLISHED_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR1EDjdykTFNzElhTarNmeqm_5ahjq4b_YqbxLgcC8ZBp4D6oZf4Fmg0CUGu33mmH_p1Fb3EAU3FWHY/pubhtml";
+        const SHEET_URL = PUBLISHED_URL.replace("/pubhtml", "/pub?output=csv");
 
-     // 🚨 CONFIGURATION: Paste your Web Published URL here
-const PUBLISHED_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ9_bCG4ULPB0KZ6km0y6HUSeqHU9KklIr9tyMlsE39xdTzFP-KMjq0WzqkSgKin5LInMC_TM0g95Qj/pubhtml";
+        let allSarees = [];
+        let currentCategory = 'all';
 
-// This automatically converts your link into a clean data feed
-const SHEET_URL = PUBLISHED_URL.replace("/pubhtml", "/pub?output=csv");
         const grid = document.getElementById('saree-grid');
+        const buttonsContainer = document.getElementById('filterButtonsContainer');
 
         // Fetch data from Google Sheets
         fetch(SHEET_URL)
             .then(response => response.text())
             .then(csvText => {
-                grid.innerHTML = ""; // Clear the loading text
+                grid.innerHTML = ""; 
                 
-                // Simple CSV Parser to handle row splitting safely
                 const rows = csvText.split('\n').map(row => {
-                    // Split by comma but ignore commas inside quotes
                     return row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(cell => cell.replace(/^"|"$/g, '').trim());
                 });
 
-                // Skip Row 0 (because it contains headers: Name, Price, Image)
+                let categories = new Set();
+
+                // Start loop at 1 to skip headers
                 for (let i = 1; i < rows.length; i++) {
                     const row = rows[i];
-                    if (!row[0]) continue; // Skip empty lines
+                    if (!row[0]) continue; 
 
-                    const sareeName = row[0];
-                    const sareePrice = row[1].startsWith('₹') ? row[1] : `₹${row[1]}`;
-                    const sareeImage = row[2];
+                    const saree = {
+                        name: row[0],
+                        price: row[1].startsWith('₹') ? row[1] : `₹${row[1]}`,
+                        image: row[2],
+                        category: row[3] || 'Uncategorized'
+                    };
 
-                    // Build WhatsApp link
-                    const messageText = `Hello! I am interested in purchasing this saree:\n\n*Saree:* ${sareeName}\n*Price:* ${sareePrice}\n\nIs this item currently available?`;
-                    const encodedMessage = encodeURIComponent(messageText);
-                    const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`;
-
-                    // Generate HTML Card
-                    const card = document.createElement('div');
-                    card.className = 'card';
-                    card.innerHTML = `
-                        <div class="card-img-container">
-                            <img src="${sareeImage}" alt="${sareeName}" class="saree-img" onclick="zoomImage(this)">
-                            <div class="zoom-overlay" onclick="this.previousElementSibling.click()">🔍 Click to Zoom</div>
-                        </div>
-                        <div class="card-info">
-                            <h3>${sareeName}</h3>
-                            <p class="price">${sareePrice}</p>
-                            <a href="${whatsappUrl}" target="_blank" class="whatsapp-btn">
-                                💬 Order via WhatsApp
-                            </a>
-                        </div>
-                    `;
-                    grid.appendChild(card);
+                    allSarees.push(saree);
+                    categories.add(saree.category);
                 }
+
+                // Dynamically build category buttons based on actual folders found
+                categories.forEach(cat => {
+                    const btn = document.createElement('button');
+                    btn.className = 'filter-btn';
+                    btn.textContent = cat;
+                    btn.onclick = function() { selectCategory(cat, btn); };
+                    buttonsContainer.appendChild(btn);
+                });
+
+                displaySarees(allSarees);
             })
             .catch(error => {
-                console.error('Error loading Google Sheet:', error);
-                grid.innerHTML = "<p>Error loading catalog. Please check your Google Sheet settings.</p>";
+                console.error('Error:', error);
+                grid.innerHTML = "<p>Error loading catalog.</p>";
             });
 
-        // Lightbox functions
+        // Function to render saree cards onto layout
+        function displaySarees(sareesList) {
+            grid.innerHTML = "";
+            if(sareesList.length === 0) {
+                grid.innerHTML = "<p class='no-results'>No matching sarees found.</p>";
+                return;
+            }
+
+            sareesList.forEach(saree => {
+                const messageText = `Hello! I am interested in purchasing this saree:\n\n*Saree:* ${saree.name}\n*Category:* ${saree.category}\n*Price:* ${saree.price}\n\nIs this item currently available?`;
+                const encodedMessage = encodeURIComponent(messageText);
+                const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`;
+
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <div class="card-img-container">
+                        <img src="${saree.image}" alt="${saree.name}" class="saree-img" onclick="zoomImage(this)">
+                        <span class="category-badge">${saree.category}</span>
+                        <div class="zoom-overlay" onclick="this.previousElementSibling.click()">🔍 Click to Zoom</div>
+                    </div>
+                    <div class="card-info">
+                        <h3>${saree.name}</h3>
+                        <p class="price">${saree.price}</p>
+                        <a href="${whatsappUrl}" target="_blank" class="whatsapp-btn">
+                            💬 Order via WhatsApp
+                        </a>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // Category Tab selection controller
+        function selectCategory(category, buttonElement) {
+            currentCategory = category;
+            
+            // Toggle active button style classes
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            buttonElement.classList.add('active');
+            
+            filterProducts();
+        }
+
+        // Master combined Filter (Combines Category selection + Search bar queries)
+        function filterProducts() {
+            const searchQuery = document.getElementById('searchInput').value.toLowerCase();
+            
+            const filtered = allSarees.filter(saree => {
+                const matchesCategory = (currentCategory === 'all' || saree.category === currentCategory);
+                const matchesSearch = saree.name.toLowerCase().includes(searchQuery) || saree.category.toLowerCase().includes(searchQuery);
+                return matchesCategory && matchesSearch;
+            });
+            
+            displaySarees(filtered);
+        }
+
+        // Zoom System Functions
         function zoomImage(imgElement) {
             const modal = document.getElementById("imageModal");
             const modalImg = document.getElementById("modalImg");
