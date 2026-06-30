@@ -361,7 +361,7 @@ footer {
    9. Floating Back to Top Button
    ========================================================================== */
 #backToTopBtn {
-    display: none; 
+    display: block; 
     position: fixed; /* Crucial: This keeps it locked to the screen */
     bottom: 30px;
     right: 30px;
