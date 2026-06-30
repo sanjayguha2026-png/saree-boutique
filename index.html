@@ -184,7 +184,25 @@
         function closeModal() {
             document.getElementById("imageModal").style.display = "none";
         }
-  
+  // Get the button element
+const backToTopBtn = document.getElementById("backToTopBtn");
+
+// When the user scrolls down 300px from the top of the document, show the button
+window.onscroll = function() {
+    if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+        backToTopBtn.style.display = "block";
+    } else {
+        backToTopBtn.style.display = "none";
+    }
+};
+
+// Smoothly scroll the window back up to coordinates (0, 0)
+function scrollToTop() {
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+}
     </script>
    
 <button id="backToTopBtn" title="Go to top" onclick="scrollToTop()">▲</button>
