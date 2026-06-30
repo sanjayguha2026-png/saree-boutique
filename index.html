@@ -180,6 +180,27 @@
         function closeModal() {
             document.getElementById("imageModal").style.display = "none";
         }
+        // Get the button element
+const topButton = document.getElementById("backToTopBtn");
+
+// When the user scrolls down 300px from the top of the document, show the button
+window.onscroll = function() {
+    if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+        topButton.style.display = "block";
+    } else {
+        topButton.style.display = "none";
+    }
+};
+
+// Smoothly scroll back to the absolute top of the page
+function scrollToTop() {
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+    });
+}
     </script>
+    <!-- Back to Top Button -->
+<button id="backToTopBtn" onclick="scrollToTop()" title="Go to top">↑</button>
 </body>
 </html>
