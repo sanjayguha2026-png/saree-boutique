@@ -27,21 +27,6 @@
         </div>
     </section>
 
-  <!-- <section id="collection" class="collection">  
-        <h2>Our Live Collection</h2>
-        
-        <div class="search-filter-wrapper">
-            <div class="search-box">
-                <input type="text" id="searchInput" placeholder="Search sarees by name or category..." onkeyup="filterProducts()">
-            </div>
-            
-            <div class="filter-buttons" id="filterButtonsContainer">
-                <button class="filter-btn active" onclick="selectCategory('all', this)">All</button>
-            </div>
-        </div>
-        
-        <div class="grid" id="saree-grid">Loading latest sarees...</div>
-    </section>-->
 
     <!-- Filter & Search Toolbar Section -->
     <section id="collection" class="collection">
@@ -60,8 +45,7 @@
         <!-- The Main Saree Layout Grid -->
         <div class="grid" id="saree-grid">Loading latest sarees...</div>
 
-        <!-- NEW: Pagination Control Strip Container -->
-        <div class="pagination-container" id="paginationControls"></div>
+          
     </section>
 
     <div id="imageModal" class="modal" onclick="closeModal()">
@@ -81,179 +65,127 @@
         const PUBLISHED_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ9_bCG4ULPB0KZ6km0y6HUSeqHU9KklIr9tyMlsE39xdTzFP-KMjq0WzqkSgKin5LInMC_TM0g95Qj/pubhtml";
         const SHEET_URL = PUBLISHED_URL.replace("/pubhtml", "/pub?output=csv");
 
-  // Pagination State Configuration Parameters
-    const ITEMS_PER_PAGE = 10;
-    let currentPage = 1;
-    let allSarees = [];
-    let filteredSarees = []; // Secondary variable to track filtered results
-    let currentCategory = 'all';
+        let allSarees = [];
+        let currentCategory = 'all';
 
-    const grid = document.getElementById('saree-grid');
-    const buttonsContainer = document.getElementById('filterButtonsContainer');
-    const paginationControls = document.getElementById('paginationControls');
+        const grid = document.getElementById('saree-grid');
+        const buttonsContainer = document.getElementById('filterButtonsContainer');
 
-    // Fetch master registry from Google Sheets
-    fetch(SHEET_URL)
-        .then(response => response.text())
-        .then(csvText => {
-            grid.innerHTML = ""; 
-            
-            const rows = csvText.split('\n').map(row => {
-                return row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(cell => cell.replace(/^"|"$/g, '').trim());
+        // Fetch data from Google Sheets
+        fetch(SHEET_URL)
+            .then(response => response.text())
+            .then(csvText => {
+                grid.innerHTML = ""; 
+                
+                const rows = csvText.split('\n').map(row => {
+                    return row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(cell => cell.replace(/^"|"$/g, '').trim());
+                });
+
+                let categories = new Set();
+
+                // Start loop at 1 to skip headers
+                for (let i = 1; i < rows.length; i++) {
+                    const row = rows[i];
+                    if (!row[0]) continue; 
+
+                    const saree = {
+                        name: row[0],
+                        price: row[1].startsWith('₹') ? row[1] : `₹${row[1]}`,
+                        image: row[2],
+                        category: row[3] || 'Uncategorized'
+                    };
+
+                    allSarees.push(saree);
+                    categories.add(saree.category);
+                }
+
+                // Dynamically build category buttons based on actual folders found
+                categories.forEach(cat => {
+                    const btn = document.createElement('button');
+                    btn.className = 'filter-btn';
+                    btn.textContent = cat;
+                    btn.onclick = function() { selectCategory(cat, btn); };
+                    buttonsContainer.appendChild(btn);
+                });
+
+                displaySarees(allSarees);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                grid.innerHTML = "<p>Error loading catalog.</p>";
             });
 
-            let categories = new Set();
-
-            for (let i = 1; i < rows.length; i++) {
-                const row = rows[i];
-                if (!row[0]) continue; 
-
-                const saree = {
-                    name: row[0],
-                    price: row[1].startsWith('₹') ? row[1] : `₹${row[1]}`,
-                    image: row[2],
-                    category: row[3] || 'Uncategorized'
-                };
-
-                allSarees.push(saree);
-                categories.add(saree.category);
+        // Function to render saree cards onto layout
+        function displaySarees(sareesList) {
+            grid.innerHTML = "";
+            if(sareesList.length === 0) {
+                grid.innerHTML = "<p class='no-results'>No matching sarees found.</p>";
+                return;
             }
 
-            // Auto build category tab layouts
-            categories.forEach(cat => {
-                const btn = document.createElement('button');
-                btn.className = 'filter-btn';
-                btn.textContent = cat;
-                btn.onclick = function() { selectCategory(cat, btn); };
-                buttonsContainer.appendChild(btn);
+            sareesList.forEach(saree => {
+                const messageText = `Hello! I am interested in purchasing this saree:\n\n*Saree:* ${saree.name}\n*Category:* ${saree.category}\n*Price:* ${saree.price}\n\nIs this item currently available?`;
+                const encodedMessage = encodeURIComponent(messageText);
+                const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`;
+
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <div class="card-img-container">
+                        <img src="${saree.image}" alt="${saree.name}" class="saree-img" onclick="zoomImage(this)">
+                        <span class="category-badge">${saree.category}</span>
+                        <div class="zoom-overlay" onclick="this.previousElementSibling.click()">🔍 Click to Zoom</div>
+                    </div>
+                    <div class="card-info">
+                        <h3>${saree.name}</h3>
+                        <p class="price">${saree.price}</p>
+                        <a href="${whatsappUrl}" target="_blank" class="whatsapp-btn">
+                            💬 Order via WhatsApp
+                        </a>
+                    </div>
+                `;
+                grid.appendChild(card);
             });
-
-            // Initialize both variables with full data on page launch
-            filteredSarees = [...allSarees];
-            renderPageLayout();
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            grid.innerHTML = "<p>Error loading catalog.</p>";
-        });
-
-    // Combined controller to render sliced items and pagination strip layout
-    function renderPageLayout() {
-        // Calculate item slicing offsets
-        const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-        const endIndex = startIndex + ITEMS_PER_PAGE;
-        const pageItems = filteredSarees.slice(startIndex, endIndex);
-
-        // 1. Output structural product cards onto layout view
-        grid.innerHTML = "";
-        if (pageItems.length === 0) {
-            grid.innerHTML = "<p class='no-results'>No matching sarees found.</p>";
-            paginationControls.innerHTML = "";
-            return;
         }
 
-        pageItems.forEach(saree => {
-            const messageText = `Hello! I am interested in purchasing this saree:\n\n*Saree:* ${saree.name}\n*Category:* ${saree.category}\n*Price:* ${saree.price}\n\nIs this item currently available?`;
-            const encodedMessage = encodeURIComponent(messageText);
-            const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`;
-
-            const card = document.createElement('div');
-            card.className = 'card';
-            card.innerHTML = `
-                <div class="card-img-container">
-                    <img src="${saree.image}" alt="${saree.name}" class="saree-img" onclick="zoomImage(this)">
-                    <span class="category-badge">${saree.category}</span>
-                    <div class="zoom-overlay" onclick="this.previousElementSibling.click()">🔍 Click to Zoom</div>
-                </div>
-                <div class="card-info">
-                    <h3>${saree.name}</h3>
-                    <p class="price">${saree.price}</p>
-                    <a href="${whatsappUrl}" target="_blank" class="whatsapp-btn">
-                        💬 Order via WhatsApp
-                    </a>
-                </div>
-            `;
-            grid.appendChild(card);
-        });
-
-        // 2. Build the navigation buttons bar interface
-        buildPaginationControls();
-    }
-
-    function buildPaginationControls() {
-        paginationControls.innerHTML = "";
-        const totalPages = Math.ceil(filteredSarees.length / ITEMS_PER_PAGE);
-        
-        // If everything fits safely on a single page, skip rendering pagination buttons entirely
-        if (totalPages <= 1) return;
-
-        // Create Previous Button element
-        const prevBtn = document.createElement('button');
-        prevBtn.className = `page-btn navigation-btn ${currentPage === 1 ? 'disabled' : ''}`;
-        prevBtn.textContent = "« Prev";
-        prevBtn.disabled = currentPage === 1;
-        prevBtn.onclick = () => { if(currentPage > 1) { currentPage--; renderPageLayout(); scrollToCollectionTop(); } };
-        paginationControls.appendChild(prevBtn);
-
-        // Generate Numerical Page Tabs links
-        for (let i = 1; i <= totalPages; i++) {
-            const numBtn = document.createElement('button');
-            numBtn.className = `page-btn ${currentPage === i ? 'active' : ''}`;
-            numBtn.textContent = i;
-            numBtn.onclick = () => { currentPage = i; renderPageLayout(); scrollToCollectionTop(); };
-            paginationControls.appendChild(numBtn);
+        // Category Tab selection controller
+        function selectCategory(category, buttonElement) {
+            currentCategory = category;
+            
+            // Toggle active button style classes
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            buttonElement.classList.add('active');
+            
+            filterProducts();
         }
 
-        // Create Next Button element
-        const nextBtn = document.createElement('button');
-        nextBtn.className = `page-btn navigation-btn ${currentPage === totalPages ? 'disabled' : ''}`;
-        nextBtn.textContent = "Next »";
-        nextBtn.disabled = currentPage === totalPages;
-        nextBtn.onclick = () => { if(currentPage < totalPages) { currentPage++; renderPageLayout(); scrollToCollectionTop(); } };
-        paginationControls.appendChild(nextBtn);
-    }
+        // Master combined Filter (Combines Category selection + Search bar queries)
+        function filterProducts() {
+            const searchQuery = document.getElementById('searchInput').value.toLowerCase();
+            
+            const filtered = allSarees.filter(saree => {
+                const matchesCategory = (currentCategory === 'all' || saree.category === currentCategory);
+                const matchesSearch = saree.name.toLowerCase().includes(searchQuery) || saree.category.toLowerCase().includes(searchQuery);
+                return matchesCategory && matchesSearch;
+            });
+            
+            displaySarees(filtered);
+        }
 
-    function selectCategory(category, buttonElement) {
-        currentCategory = category;
-        document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-        buttonElement.classList.add('active');
-        
-        currentPage = 1; // Always reset to page 1 during a filter operation
-        filterProducts();
-    }
+        // Zoom System Functions
+        function zoomImage(imgElement) {
+            const modal = document.getElementById("imageModal");
+            const modalImg = document.getElementById("modalImg");
+            const captionText = document.getElementById("caption");
+            
+            modal.style.display = "block";
+            modalImg.src = imgElement.src;
+            captionText.innerHTML = imgElement.alt;
+        }
 
-    function filterProducts() {
-        const searchQuery = document.getElementById('searchInput').value.toLowerCase();
-        
-        filteredSarees = allSarees.filter(saree => {
-            const matchesCategory = (currentCategory === 'all' || saree.category === currentCategory);
-            const matchesSearch = saree.name.toLowerCase().includes(searchQuery) || saree.category.toLowerCase().includes(searchQuery);
-            return matchesCategory && matchesSearch;
-        });
-        
-        currentPage = 1; // Always reset to page 1 during a search text query operation
-        renderPageLayout();
-    }
-
-    // Helper utility to smoothly pull user back to catalog start line when flipping pages
-    function scrollToCollectionTop() {
-        document.getElementById('collection').scrollIntoView({ behavior: 'smooth' });
-    }
-
-    // Zoom Overlay Controls Modals System Functions
-    function zoomImage(imgElement) {
-        const modal = document.getElementById("imageModal");
-        const modalImg = document.getElementById("modalImg");
-        const captionText = document.getElementById("caption");
-        
-        modal.style.display = "block";
-        modalImg.src = imgElement.src;
-        captionText.innerHTML = imgElement.alt;
-    }
-
-    function closeModal() {
-        document.getElementById("imageModal").style.display = "none";
-    }
+        function closeModal() {
+            document.getElementById("imageModal").style.display = "none";
+        }
   const backToTopBtn = document.getElementById("backToTopBtn");
 
 window.onscroll = function() {
@@ -264,7 +196,7 @@ window.onscroll = function() {
     } else {
         backToTopBtn.style.display = "none";
     }
-}
+};
     </script>
    
 <button id="backToTopBtn" title="Go to top" onclick="scrollToTop()">▲</button>
