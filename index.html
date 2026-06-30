@@ -181,27 +181,19 @@
         function closeModal() {
             document.getElementById("imageModal").style.display = "none";
         }
-        // Get the button element
-const topButton = document.getElementById("backToTopBtn");
+  const backToTopBtn = document.getElementById("backToTopBtn");
 
-// When the user scrolls down 300px from the top of the document, show the button
 window.onscroll = function() {
+    // Check if user has scrolled down more than 300 pixels
     if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
-        topButton.style.display = "block";
+        backToTopBtn.style.display = "block";
+        backToTopBtn.style.opacity = "1";
     } else {
-        topButton.style.display = "none";
+        backToTopBtn.style.display = "none";
     }
 };
-
-// Smoothly scroll back to the absolute top of the page
-function scrollToTop() {
-    window.scrollTo({
-        top: 0,
-        behavior: 'smooth'
-    });
-}
     </script>
    
-
+<button id="backToTopBtn" title="Go to top" onclick="scrollToTop()">▲</button>
 </body>
 </html>
