@@ -53,7 +53,7 @@
         <img class="modal-content" id="modalImg">
         <div id="caption"></div>
     </div>
-<button id="backToTopBtn" title="Go to top" onclick="scrollToTop()">▲</button>
+
     <footer>
         <p>&copy; 2026 Vastra Sutraa Boutique. All Rights Reserved. </p>
         <p>&copy; Contact : vastrasutraa26@gmail.com for bulk enquiries</p>
@@ -187,7 +187,6 @@
   // Get the button element
 const backToTopBtn = document.getElementById("backToTopBtn");
 
-// When the user scrolls down 300px from the top of the document, show the button
 window.onscroll = function() {
     if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
         backToTopBtn.style.display = "block";
@@ -196,7 +195,11 @@ window.onscroll = function() {
     }
 };
 
+function scrollToTop() {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
     </script>
-    
+<button id="backToTopBtn" title="Go to top" onclick="scrollToTop()">▲</button>    
 </body>
 </html>
