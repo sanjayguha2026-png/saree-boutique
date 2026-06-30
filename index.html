@@ -27,7 +27,7 @@
         </div>
     </section>
 
-    <section id="collection" class="collection">
+  <!-- <section id="collection" class="collection">  
         <h2>Our Live Collection</h2>
         
         <div class="search-filter-wrapper">
@@ -41,6 +41,27 @@
         </div>
         
         <div class="grid" id="saree-grid">Loading latest sarees...</div>
+    </section>-->
+
+    <!-- Filter & Search Toolbar Section -->
+    <section id="collection" class="collection">
+        <h2>Our Live Collection</h2>
+        
+        <div class="search-filter-wrapper">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Search sarees by name or category..." onkeyup="filterProducts()">
+            </div>
+            
+            <div class="filter-buttons" id="filterButtonsContainer">
+                <button class="filter-btn active" onclick="selectCategory('all', this)">All</button>
+            </div>
+        </div>
+        
+        <!-- The Main Saree Layout Grid -->
+        <div class="grid" id="saree-grid">Loading latest sarees...</div>
+
+        <!-- NEW: Pagination Control Strip Container -->
+        <div class="pagination-container" id="paginationControls"></div>
     </section>
 
     <div id="imageModal" class="modal" onclick="closeModal()">
